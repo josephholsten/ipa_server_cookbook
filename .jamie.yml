@@ -1,0 +1,15 @@
+---
+driver_plugin: vagrant
+
+platforms:
+- name: centos-6.3
+  driver_config:
+    box: opscode-centos-6.3
+    box_url: https://opscode-vm.s3.amazonaws.com/vagrant/boxes/opscode-centos-6.3.box
+
+suites:
+- name: default
+  run_list:
+  - recipe[ipa_server::hosts]
+  - recipe[ipa_server::default]
+  - recipe[ipa_server::nagios]
