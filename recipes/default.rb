@@ -17,7 +17,12 @@
 # limitations under the License.
 #
 
-package 'ipa-server'
+case node['platform_family']
+when 'rhel'
+  package 'ipa-server'
+when 'fedora'
+  package 'freeipa-server'
+end
 package 'bind-dyndb-ldap'
 
 execute "ipa-server-install" do
