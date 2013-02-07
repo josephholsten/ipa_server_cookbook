@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: ipa_server
-# Recipe:: nagios
+# Provider:: package
 #
 # Copyright (C) 2013 Joseph Anthony Pasquale Holsten
 # 
@@ -17,14 +17,32 @@
 # limitations under the License.
 #
 
-case node['platform_family']
-when 'rhel'
-  include_recipe 'yum::epel'
+action :install do
+  case node['platform_family']
+  when 'rhel'
+    package 'ipa-server'
+  when 'fedora'
+    package 'freeipa-server'
+  end
+  package 'bind-dyndb-ldap'
+
+  new_resource.updated_by_last_action(true)
 end
 
-include_recipe 'ipa_server::default'
+action :remove do
+  case node['platform_family']
+  when 'rhel'
+    package 'ipa-server' do
+      action :remove
+    end
+  when 'fedora'
+    package 'freeipa-server' do
+      action :remove
+    end
+  end
+  package 'bind-dyndb-ldap' do
+    action :remove
+  end
 
-package 'nagios-plugins-dns'
-package 'nagios-plugins-http'
-package 'nagios-plugins-ldap'
-package 'nagios-plugins-ntp'
+  new_resource.updated_by_last_action(true)
+end

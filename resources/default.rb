@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: ipa_server
-# Recipe:: nagios
+# Resource:: default
 #
 # Copyright (C) 2013 Joseph Anthony Pasquale Holsten
 # 
@@ -17,14 +17,11 @@
 # limitations under the License.
 #
 
-case node['platform_family']
-when 'rhel'
-  include_recipe 'yum::epel'
-end
+actions :install, :remove
+default_action :install
 
-include_recipe 'ipa_server::default'
-
-package 'nagios-plugins-dns'
-package 'nagios-plugins-http'
-package 'nagios-plugins-ldap'
-package 'nagios-plugins-ntp'
+attribute :hostname, :kind_of => String, :name_attribute => true
+attribute :domain, :kind_of => String
+attribute :realm, :kind_of => String
+attribute :ds_password, :kind_of => String
+attribute :admin_password, :kind_of => String

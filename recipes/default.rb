@@ -17,25 +17,9 @@
 # limitations under the License.
 #
 
-case node['platform_family']
-when 'rhel'
-  package 'ipa-server'
-when 'fedora'
-  package 'freeipa-server'
-end
-package 'bind-dyndb-ldap'
-
-execute "ipa-server-install" do
-  command <<-EOF
-  ipa-server-install \
-  --hostname=#{node['ipa_server']['hostname']} \
-  --domain=#{node['ipa_server']['domain']} \
-  --realm=#{node['ipa_server']['realm']} \
-  --ds-password=#{node['ipa_server']['ds_password']} \
-  --admin-password=#{node['ipa_server']['admin_password']} \
-  --setup-dns \
-  --no-forwarders \
-  --unattended
-  EOF
-  not_if { ::File.exists? '/etc/ipa/default.conf' }
+ipa_server node['ipa_server']['hostname'] do
+  domain node['ipa_server']['domain']
+  realm node['ipa_server']['realm']
+  ds_password node['ipa_server']['ds_password']
+  admin_password node['ipa_server']['admin_password']
 end

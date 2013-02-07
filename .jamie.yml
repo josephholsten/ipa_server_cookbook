@@ -2,6 +2,10 @@
 driver_plugin: vagrant
 
 platforms:
+- name: fedora-18
+  driver_config:
+    box: sm-fedora-18
+    box_url: http://sm-config.s3.amazonaws.com/public/linux/sm-fedora-18.box
 - name: centos-6.3
   driver_config:
     box: opscode-centos-6.3
