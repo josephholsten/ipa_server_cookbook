@@ -8,7 +8,6 @@ Gemfile.lock
 .*.sw[a-z]
 *.un~
 /cookbooks
-VERSION
 /bin
 .bundle
 .jamie
