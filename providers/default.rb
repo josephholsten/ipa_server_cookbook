@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: ipa_server
-# Provider:: default
+# Provider:: package
 #
 # Copyright (C) 2013 Joseph Anthony Pasquale Holsten
 # 
@@ -18,18 +18,18 @@
 #
 
 action :install do
-  ipa_server_package "ipa-server" do
+  ipa_server_package new_resource.hostname do
     action :install
   end
 
   execute "ipa-server-install" do
     command <<-EOF
     ipa-server-install \
-    --hostname=#{node['ipa_server']['hostname']} \
-    --domain=#{node['ipa_server']['domain']} \
-    --realm=#{node['ipa_server']['realm']} \
-    --ds-password=#{node['ipa_server']['ds_password']} \
-    --admin-password=#{node['ipa_server']['admin_password']} \
+    --hostname=#{new_resource.hostname} \
+    --domain=#{new_resource.domain} \
+    --realm=#{new_resource.realm} \
+    --ds-password=#{new_resource.ds_password} \
+    --admin-password=#{new_resource.admin_password} \
     --setup-dns \
     --no-forwarders \
     --unattended
@@ -41,17 +41,16 @@ action :install do
 end
 
 action :remove do
-  ipa_server_package "ipa-server" do
-    action :remove
-  end
-
   execute "ipa-server-uninstall" do
     command <<-EOF
-    ipa-server-install \
     --uninstall \
     --unattended
     EOF
     only_if { ::File.exists? '/etc/ipa/default.conf' }
+  end
+
+  ipa_server_package new_resource.name do
+    action :remove
   end
 
   new_resource.updated_by_last_action(true)
