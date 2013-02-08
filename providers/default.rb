@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: ipa_server
-# Provider:: package
+# Provider:: default
 #
 # Copyright (C) 2013 Joseph Anthony Pasquale Holsten
 # 
