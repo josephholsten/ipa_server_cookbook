@@ -17,3 +17,11 @@ suites:
   - recipe[ipa_server::hosts]
   - recipe[ipa_server::default]
   - recipe[ipa_server::nagios]
+- name: replica
+  run_list:
+  - recipe[ipa_server::hosts]
+  - recipe[ipa_server::replica]
+  - recipe[ipa_server::nagios]
+  attributes:
+    ipa_server:
+      replica_file: 'file:///vagrant/replica-info-replica-fedora-18.vagrantup.com.gpg'
