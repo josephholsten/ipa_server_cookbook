@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe 'ipa_server::client'
+
 ipa_server_package node['ipa_server']['hostname'] do
   action :install
 end
