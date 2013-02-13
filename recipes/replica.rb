@@ -25,8 +25,7 @@ end
 
 bag_name = node['fqdn'].tr('.', '_')
 replica_info = data_bag_item('ipa_replica_info', bag_name)
-
-if replica_info['contents']
+if replica_info['content']
   file "/var/lib/ipa/replica-info-#{node['fqdn']}.gpg" do
     content Base64.decode64(replica_info['content'])
     owner 'root'
