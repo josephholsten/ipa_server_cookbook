@@ -34,7 +34,7 @@ if replica_info['content']
     action :create_if_missing
   end
 else
-  raise "Can not set up replication without replica info for this node. Could not find contents in data bag ipa_replica_info::#{bag_name}. #{replica_info.inspect}"
+  raise "Can not set up replication without replica info for this node. Could not find contents in data_bag_item[ipa_replica_info::#{bag_name}]. #{replica_info.inspect}"
 end
 
 execute "ipa-replica-install" do
