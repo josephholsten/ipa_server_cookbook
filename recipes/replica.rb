@@ -17,17 +17,19 @@
 # limitations under the License.
 #
 
-include_recipe 'ipa_server::client'
+require 'base64'
 
 ipa_server_package node['ipa_server']['hostname'] do
   action :install
 end
 
-remote_file "/var/lib/ipa/replica-info-#{node['fqdn']}.gpg" do
-  source node['ipa_server']['replica_file']
+replica_info = data_bag_item('ipa_replica_info', node['fqdn'].tr('.', '_'))
+
+file "/var/lib/ipa/replica-info-#{node['fqdn']}.gpg" do
+  contents Base64.decode64(replica_info['contents'])
   owner 'root'
   group 'root'
-  mode '0664'
+  mode '0600'
   action :create_if_missing
 end
 
