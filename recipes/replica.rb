@@ -23,14 +23,19 @@ ipa_server_package node['ipa_server']['hostname'] do
   action :install
 end
 
-replica_info = data_bag_item('ipa_replica_info', node['fqdn'].tr('.', '_'))
+bag_name = node['fqdn'].tr('.', '_')
+replica_info = data_bag_item('ipa_replica_info', bag_name)
 
-file "/var/lib/ipa/replica-info-#{node['fqdn']}.gpg" do
-  contents Base64.decode64(replica_info['contents'])
-  owner 'root'
-  group 'root'
-  mode '0600'
-  action :create_if_missing
+if replica_info['contents']
+  file "/var/lib/ipa/replica-info-#{node['fqdn']}.gpg" do
+    contents Base64.decode64(replica_info['contents'])
+    owner 'root'
+    group 'root'
+    mode '0600'
+    action :create_if_missing
+  end
+else
+  raise "Can not set up replication without replica info for this node. Could not find contents in data bag ipa_replica_info::#{bag_name}. #{replica_info.inspect}"
 end
 
 execute "ipa-replica-install" do
