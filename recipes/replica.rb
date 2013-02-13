@@ -37,6 +37,9 @@ else
   raise "Can not set up replication without replica info for this node. Could not find contents in data_bag_item[ipa_replica_info::#{bag_name}]. #{replica_info.inspect}"
 end
 
+# TODO: fine tuned firewall rules
+execute "iptables --flush"
+
 execute "ipa-replica-install" do
   command <<-EOF
   ipa-replica-install \
