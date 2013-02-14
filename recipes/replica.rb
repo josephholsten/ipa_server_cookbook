@@ -19,6 +19,8 @@
 
 require 'base64'
 
+node.set['ipa_server']['replica']['enabled'] = true
+
 ipa_server_package node['ipa_server']['hostname'] do
   action :install
 end
@@ -35,6 +37,13 @@ if replica_info['content']
     group 'root'
     mode '0600'
     action :create_if_missing
+  end
+
+  ruby_block 'set node["ipa_server"]["needs_key"] = false' do
+    block do
+      node.set['ipa_server']['replica']['needs_key'] = false
+    end
+    only_if {::File.exists? "/var/lib/ipa/replica-info-#{node['fqdn']}.gpg" }
   end
 
   execute "ipa-replica-install" do
