@@ -26,12 +26,22 @@ end
 
 # populate nodes for replica info
 search('node', 'ipa_server_replica_enabled:true') do |replica|
+  # ensure dns record exists
+  execute "ipa dnsrecord-add #{node['domain']} #{node['hostname']}" do
+    command <<-EOF
+      ipa dnsrecord-add \
+        #{node['domain']} #{node['hostname']} \
+        --a-ip-address #{node['ipaddress']}
+    EOF
+    not_if "ipa dnsrecord-show #{node['domain']} #{node['hostname']}"
+  end
+
+  # prepare replica
   execute "ipa-replica-prepare #{replica['fqdn']}" do
     command <<-EOF
       ipa-replica-prepare \
-      #{replica['fqdn']} \
-      --ip-address #{replica['ipaddress']} \
-      --password #{node['ipa_server']['ds_password']}
+        #{replica['fqdn']} \
+        --password #{node['ipa_server']['ds_password']}
     EOF
     not_if { ::File.exists? "/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg" }
   end
