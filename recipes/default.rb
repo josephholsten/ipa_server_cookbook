@@ -25,29 +25,30 @@ ipa_server node['ipa_server']['hostname'] do
 end
 
 # populate nodes for replica info
-search('node', 'ipa_server_replica_file:*') do |replica|
-  case
-  when replica['ipa_server']['replica_file']
-    next
-  when replica['fqdn'] == node['fqdn']
-    next
-  else
-    execute "ipa-replica-prepare #{replica['fqdn']}" do
+search('ipa_replicas', 'NOT content:*') do |replica|
+  fqdn = replica['id'].tr('_', '.')
+  replica_node = search('node', "fqdn:#{fqdn}").first
+
+  if replica_node
+    execute "ipa-replica-prepare #{fqdn}" do
       command <<-EOF
         ipa-replica-prepare \
-        #{replica['fqdn']} \
-        --ip-address #{replica['ipaddress']} \
+        #{fqdn} \
+        --ip-address #{replica_node['ipaddress']} \
         --password #{node['ipa_server']['ds_password']}
       EOF
-      not_if { ::File.exists? "/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg" }
+      not_if { ::File.exists? "/var/lib/ipa/replica-info-#{fqdn}.gpg" }
     end
-    ruby_block "set node[#{replica['name']}]['ipa_server']['replica_file'] attribute" do
+
+    ruby_block "set data_bag_item[ipa_replicas::#{replica['id']}]['content']" do
       block do
         require 'base64'
-        replica_info = ::File.read("/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg")
-        replica.default['ipa_server']['replica_file'] = Base64.encode64(replica_info)
+        replica_info = ::File.read("/var/lib/ipa/replica-info-#{fqdn}.gpg")
+        replica['content'] = Base64.encode64(replica_info)
         replica.save
       end
     end
+  else
+    Chef::Log.warn "Replication not prepared for fqdn:#{fqdn}, no matching node was found"
   end
 end
