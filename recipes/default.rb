@@ -36,7 +36,7 @@ search('node', 'ipa_server_replica_enabled:true') do |replica|
     not_if { ::File.exists? "/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg" }
   end
 
-  bag_name = fqdn.tr('.','_')
+  bag_name = replica['fqdn'].tr('.','_')
   replica_bag = data_bag_item('ipa_replicas', bag_name)
   # Chef::DataBagItem.json_create(
   #  'data_bag' => 'ipa_replicas',
