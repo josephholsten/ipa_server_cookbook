@@ -27,15 +27,15 @@ end
 # populate nodes for replica info
 search('node', 'ipa_server_replica_enabled:true') do |replica|
   # ensure dns record exists
-  execute "ipa dnsrecord-add #{node['domain']} #{node['hostname']}" do
+  execute "ipa dnsrecord-add #{replica['domain']} #{replica['hostname']}" do
     command <<-EOF
       echo #{node['ipa_server']['admin_password']} | \
       kinit admin; \
       ipa dnsrecord-add \
-        #{node['domain']} #{node['hostname']} \
-        --a-ip-address #{node['ipaddress']}
+        #{replica['domain']} #{replica['hostname']} \
+        --a-ip-address #{replica['ipaddress']}
     EOF
-    not_if "ipa dnsrecord-show #{node['domain']} #{node['hostname']}"
+    not_if "dig #{replica['fqdn']} +short | grep '^.*$'"
   end
 
   # prepare replica
