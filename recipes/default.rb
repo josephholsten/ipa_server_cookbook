@@ -56,7 +56,12 @@ search('node', 'ipa_server_replica_enabled:true') do |replica|
       require 'base64'
       replica_info = ::File.read("/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg")
       replica_bag_item['content'] = Base64.encode64(replica_info)
-      replica_bag_item.save
+
+      begin
+        replica_bag_item.save
+      rescue
+        raise "Could not save data_bag_item[ipa_replicas::#{bag_name}]. Check that this node permission to modify the data bag (or is an admin in Open Source chef)"
+      end
     end
   end
 end
