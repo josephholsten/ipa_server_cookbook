@@ -45,8 +45,8 @@ search('node', 'ipa_server_replica_enabled:true') do |replica|
     block do
       require 'base64'
       replica_info = ::File.read("/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg")
-      replica['content'] = Base64.encode64(replica_info)
-      replica.save
+      replica_bag['content'] = Base64.encode64(replica_info)
+      replica_bag.save
     end
   end
 end
