@@ -23,6 +23,9 @@ ipa_server_package node['ipa_server']['hostname'] do
   action :install
 end
 
+# TODO: fine tuned firewall rules
+execute "iptables --flush"
+
 bag_name = node['fqdn'].tr('.', '_')
 replica_info = data_bag_item('ipa_replicas', bag_name)
 if replica_info['content']
@@ -33,19 +36,16 @@ if replica_info['content']
     mode '0600'
     action :create_if_missing
   end
+
+  execute "ipa-replica-install" do
+    command <<-EOF
+    ipa-replica-install \
+    --password=#{node['ipa_server']['ds_password']} \
+    --admin-password=#{node['ipa_server']['admin_password']} \
+    /var/lib/ipa/replica-info-#{node['fqdn']}.gpg
+    EOF
+    not_if { ::File.exists? '/etc/ipa/default.conf' }
+  end
 else
-  raise "Can not set up replication without replica info for this node. Could not find contents in data_bag_item[ipa_replica_info::#{bag_name}]. #{replica_info.inspect}"
-end
-
-# TODO: fine tuned firewall rules
-execute "iptables --flush"
-
-execute "ipa-replica-install" do
-  command <<-EOF
-  ipa-replica-install \
-  --password=#{node['ipa_server']['ds_password']} \
-  --admin-password=#{node['ipa_server']['admin_password']} \
-  /var/lib/ipa/replica-info-#{node['fqdn']}.gpg
-  EOF
-  not_if { ::File.exists? '/etc/ipa/default.conf' }
+  Chef::Log.warn "Can not set up replication without replica info for this node. Could not find contents in data_bag_item[ipa_replica_info::#{bag_name}]. #{replica_info.inspect}"
 end
