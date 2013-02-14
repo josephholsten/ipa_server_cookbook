@@ -41,11 +41,11 @@ search('node', 'ipa_server_replica_file:*') do |replica|
       EOF
       not_if { ::File.exists? "/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg" }
     end
-    ruby_block "reload_client_config" do
+    ruby_block "set node[#{replica['name']}]['ipa_server']['replica_file'] attribute" do
       block do
         require 'base64'
         replica_info = ::File.read("/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg")
-        replica['ipa_server']['replica_file'] = Base64.encode64(replica_info)
+        replica.default['ipa_server']['replica_file'] = Base64.encode64(replica_info)
       end
     end
   end
