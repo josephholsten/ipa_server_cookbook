@@ -29,6 +29,8 @@ search('node', 'ipa_server_replica_enabled:true') do |replica|
   # ensure dns record exists
   execute "ipa dnsrecord-add #{node['domain']} #{node['hostname']}" do
     command <<-EOF
+      echo #{node['ipa_server']['admin_password']} | \
+      kinit admin; \
       ipa dnsrecord-add \
         #{node['domain']} #{node['hostname']} \
         --a-ip-address #{node['ipaddress']}
