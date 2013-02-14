@@ -37,10 +37,13 @@ search('node', 'ipa_server_replica_enabled:true') do |replica|
   end
 
   bag_name = replica['fqdn'].tr('.','_')
-  replica_bag = data_bag_item('ipa_replicas', bag_name)
-  # Chef::DataBagItem.json_create(
-  #  'data_bag' => 'ipa_replicas',
-  #  'raw_data' => {'id' => bag_name})
+  replica_bag = begin
+    data_bag_item('ipa_replicas', bag_name)
+  rescue
+   Chef::DataBagItem.json_create(
+     'data_bag' => 'ipa_replicas',
+     'raw_data' => {'id' => bag_name})
+  end
   ruby_block "set data_bag_item[ipa_replicas::#{bag_name}]['content']" do
     block do
       require 'base64'
