@@ -33,7 +33,8 @@ search('node', 'ipa_server_replica_enabled:true') do |replica|
       kinit admin; \
       ipa dnsrecord-add \
         #{replica['domain']} #{replica['hostname']} \
-        --a-ip-address #{replica['ipaddress']}
+        --a-ip-address #{replica['ipaddress']} \
+        --a-create-reverse
     EOF
     not_if "dig #{replica['fqdn']} +short | grep '^.*$'"
   end
