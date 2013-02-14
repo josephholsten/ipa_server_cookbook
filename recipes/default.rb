@@ -25,7 +25,7 @@ ipa_server node['ipa_server']['hostname'] do
 end
 
 # populate nodes for replica info
-search('ipa_replicas', 'ipa_server_replica_enabled:true') do |replica|
+search('node', 'ipa_server_replica_enabled:true') do |replica|
   execute "ipa-replica-prepare #{replica['fqdn']}" do
     command <<-EOF
       ipa-replica-prepare \
