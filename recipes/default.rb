@@ -36,8 +36,15 @@ search('node', 'ipa_server_replica_enabled:true') do |replica|
     not_if { ::File.exists? "/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg" }
   end
 
+  # ensure bag exists
+  bag = begin
+    data_bag('ipa_replicas')
+  rescue
+    Chef::DataBag.json_create('name' => 'ipa_replicas').save
+  end
+
   bag_name = replica['fqdn'].tr('.','_')
-  replica_bag = begin
+  replica_bag_item = begin
     data_bag_item('ipa_replicas', bag_name)
   rescue
    Chef::DataBagItem.json_create(
@@ -48,8 +55,8 @@ search('node', 'ipa_server_replica_enabled:true') do |replica|
     block do
       require 'base64'
       replica_info = ::File.read("/var/lib/ipa/replica-info-#{replica['fqdn']}.gpg")
-      replica_bag['content'] = Base64.encode64(replica_info)
-      replica_bag.save
+      replica_bag_item['content'] = Base64.encode64(replica_info)
+      replica_bag_item.save
     end
   end
 end
