@@ -27,8 +27,13 @@ end
 execute "iptables --flush"
 
 bag_name = node['fqdn'].tr('.', '_')
-replica_info = data_bag_item('ipa_replicas', bag_name)
-if replica_info['content']
+begin
+  replica_info = data_bag_item('ipa_replicas', bag_name)
+rescue
+  Chef::Log.warn "Can not set up replication without replica info for this node. Could not find data_bag_item[ipa_replica_info::#{bag_name}]."
+end
+
+if replica_info && replica_info['content']
   file "/var/lib/ipa/replica-info-#{node['fqdn']}.gpg" do
     content Base64.decode64(replica_info['content'])
     owner 'root'
