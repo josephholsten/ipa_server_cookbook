@@ -50,6 +50,8 @@ if replica_info['content']
     ipa-replica-install \
       --password=#{node['ipa_server']['ds_password']} \
       --admin-password=#{node['ipa_server']['admin_password']} \
+      --setup-dns \
+      --no-forwarders \
       /var/lib/ipa/replica-info-#{node['fqdn']}.gpg
     EOF
     not_if { ::File.exists? '/etc/ipa/default.conf' }
